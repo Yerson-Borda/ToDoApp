@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">ToDoApp</string>
+    <string name="empty_list">Empty list</string>
+    <string name="no_tasks">For now, you have nothing to do. Have a nice rest!</string>
+    <string name="add_task">Add task</string>
+    <string name="title">Don\'t Forget</string>
+</resources>
