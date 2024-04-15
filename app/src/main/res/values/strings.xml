@@ -7,4 +7,5 @@
     <string name="go_back">Back</string>
     <string name="select_the_deadline_of_this_task">Select the deadline of this task</string>
     <string name="button_save">Save</string>
+    <string name="tasks">Tasks:</string>
 </resources>

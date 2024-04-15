@@ -22,6 +22,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,14 +30,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.todoapp.R
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun ThirdScreen(){
+fun ThirdScreen(navController: NavController,title: String, description: String, deadline: String, type: String){ //navController: NavController
     Scaffold(
         topBar = {
             Row (
@@ -50,7 +54,7 @@ fun ThirdScreen(){
                     modifier = Modifier
                         .padding(16.dp)
                         .clickable {
-                            //navController.popBackStack()
+                            navController.popBackStack()
                         }
                 )
                 Text(
@@ -60,12 +64,17 @@ fun ThirdScreen(){
             }
         }
     ) {
-        TaskDetails()
+        val deadlineLong = deadline.toLongOrNull() ?: 0
+        TaskDetails(title, description, deadlineLong, type)
     }
 }
 
 @Composable
-fun TaskDetails(){
+fun TaskDetails(title: String, description: String, deadline: Long, type: String){
+    val formattedDeadline = remember {
+        SimpleDateFormat("LLLL dd, yyyy", Locale.getDefault())
+    }.format(Date(deadline))
+
     Column (
         modifier = Modifier
             .fillMaxSize()
@@ -79,7 +88,7 @@ fun TaskDetails(){
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Buy a book", //Title
+                text = title,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -102,9 +111,8 @@ fun TaskDetails(){
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text(   //Task description
-            text = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna wirl\n" +
-                    "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna wirl",
+        Text(
+            text = description,
             fontSize = 16.sp,
             lineHeight = 24.sp,
             modifier = Modifier.width(328.dp)
@@ -128,8 +136,8 @@ fun TaskDetails(){
                         .size(24.dp)
                         .padding(end = 8.dp)
                 )
-                Text(   //Deadline of the task
-                    text = "Before 'deadline'",
+                Text(
+                    text = "Before $formattedDeadline",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.Gray
@@ -146,7 +154,7 @@ fun TaskDetails(){
                 ) {
                 Text(   //Color according to the order of importance
                     textAlign = TextAlign.Center,
-                    text = "Urgent",
+                    text = type,
                     fontSize = 12.sp,
                     color = Color.White,
                     fontWeight = FontWeight.Normal,
@@ -155,10 +163,4 @@ fun TaskDetails(){
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ShowPreview(){
-    ThirdScreen()
 }

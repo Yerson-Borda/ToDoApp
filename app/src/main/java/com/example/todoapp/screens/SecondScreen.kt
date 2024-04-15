@@ -50,10 +50,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.todoapp.R
 import java.text.DateFormatSymbols
-import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
-import java.util.Locale
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -81,12 +79,15 @@ fun SecondScreen(navController: NavController){
             }
         }
     ) {
-        AddTask(navController)
+        AddTask(navController) { task ->
+            listOfTasks.add(task)
+        }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddTask(navController: NavController){
+fun AddTask(navController: NavController, onSaveTask: (List) -> Unit){
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
 
@@ -140,7 +141,7 @@ fun AddTask(navController: NavController){
         ){
             EndDateTextField { endDate = it }
             Icon(
-                //falta implementar el calendario cliqueable
+                //Clickable calendar still needed
                 imageVector = Icons.Filled.DateRange,
                 contentDescription = stringResource(R.string.select_the_deadline_of_this_task),
                 tint = Color.Blue,
@@ -156,7 +157,60 @@ fun AddTask(navController: NavController){
 
         Spacer(modifier = Modifier.height(28.dp))
 
-        ToDoCategories()
+        //Categories  *-*-*-**-*-*-**-*-*-**-*-*-**-*-*-**-*-*-*
+
+        val list = listOf(
+            "Urgent", //Red
+            "Important", //Yellow
+            "Assigned", //Blue
+            "Plans" // Green
+        )
+        var isExpanded by remember{ mutableStateOf(false) }
+        var selectedText by remember { mutableStateOf(list[0]) }
+
+        Column (
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 16.dp),
+        ){
+            ExposedDropdownMenuBox(
+                expanded = isExpanded,
+                onExpandedChange = { isExpanded = !isExpanded }
+            ) {
+                TextField(
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth()
+                        .padding(end = 8.dp)
+                        .shadow(elevation = 6.dp),
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color(0xFFf0ecec),
+                        unfocusedTextColor = Color(0xff888888),
+                        focusedContainerColor = Color(0xFFf0ecec),
+                        focusedTextColor = Color(0xff222222),
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    ),
+                    value = selectedText,
+                    onValueChange = {},
+                    readOnly = true,
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded) }
+                )
+
+                ExposedDropdownMenu(expanded = isExpanded, onDismissRequest = { isExpanded = false }) {
+                    list.forEachIndexed { index, text ->
+                        DropdownMenuItem(
+                            text = { Text(text = text) },
+                            onClick = {
+                                selectedText = list[index]
+                                isExpanded = false
+                            },
+                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                        )
+                    }
+                }
+            }
+        }
 
         Spacer(modifier = Modifier.height(187.dp))
 
@@ -166,7 +220,9 @@ fun AddTask(navController: NavController){
                 .padding(start = 17.dp, end = 17.dp),
             colors = ButtonDefaults.buttonColors(Color.Black),
             onClick = {
-                //Code to save the task in the list
+                val task = List(title = title, description = description, deadline = endDate.toString(), type = selectedText)
+                onSaveTask(task)
+                navController.popBackStack()
             }
         ) {
             Text(text = stringResource(R.string.button_save))
@@ -224,68 +280,4 @@ fun EndDateTextField(endDate: (Long) -> Unit) {
 
 fun Int.toMonthName(): String {
     return DateFormatSymbols().months[this]
-}
-
-fun Date.toFormattedString(): String {
-    val simpleDateFormat = SimpleDateFormat("LLLL dd, yyyy", Locale.getDefault())
-    return simpleDateFormat.format(this)
-}
-
-//Categories  *-*-*-**-*-*-**-*-*-**-*-*-**-*-*-**-*-*-*
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ToDoCategories(){
-    val list = listOf(
-        "Urgent", //Red
-        "Important", //Yellow
-        "Assigned", //Blue
-        "Plans" // Green
-    )
-    var isExpanded by remember{ mutableStateOf(false) }
-    var selectedText by remember { mutableStateOf(list[0]) }
-
-    Column (
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 16.dp, end = 16.dp),
-    ){
-        ExposedDropdownMenuBox(
-            expanded = isExpanded,
-            onExpandedChange = { isExpanded = !isExpanded }
-        ) {
-            TextField(
-                modifier = Modifier
-                    .menuAnchor()
-                    .fillMaxWidth()
-                    .padding(end = 8.dp)
-                    .shadow(elevation = 6.dp),
-                colors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = Color(0xFFf0ecec),
-                    unfocusedTextColor = Color(0xff888888),
-                    focusedContainerColor = Color(0xFFf0ecec),
-                    focusedTextColor = Color(0xff222222),
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
-                ),
-                value = selectedText,
-                onValueChange = {},
-                readOnly = true,
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded) }
-            )
-
-            ExposedDropdownMenu(expanded = isExpanded, onDismissRequest = { isExpanded = false }) {
-                list.forEachIndexed { index, text ->
-                    DropdownMenuItem(
-                        text = { Text(text = text) },
-                        onClick = {
-                            selectedText = list[index]
-                            isExpanded = false
-                        },
-                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                    )
-                }
-            }
-        }
-    }
 }
