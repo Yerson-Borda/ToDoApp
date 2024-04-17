@@ -1,3 +1,4 @@
+//3rd Screen
 package com.example.todoapp.screens
 
 import android.annotation.SuppressLint
@@ -34,13 +35,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.todoapp.R
+import com.example.todoapp.ui.theme.nunitoFontFamily
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun ThirdScreen(navController: NavController,title: String, description: String, deadline: String, type: String){ //navController: NavController
+fun ThirdScreen(
+    navController: NavController,
+    title: String, description: String,
+    deadline: String, type: String,
+    isChecked: Boolean
+){
     Scaffold(
         topBar = {
             Row (
@@ -58,19 +65,27 @@ fun ThirdScreen(navController: NavController,title: String, description: String,
                         }
                 )
                 Text(
-                    text = "Task Details",
-                    fontSize = 22.sp
+                    text = stringResource(R.string.task_details),
+                    fontSize = 22.sp,
+                    fontFamily = nunitoFontFamily,
+                    fontWeight = FontWeight.Normal
                 )
             }
         }
     ) {
         val deadlineLong = deadline.toLongOrNull() ?: 0
-        TaskDetails(title, description, deadlineLong, type)
+        TaskDetails(title, description, deadlineLong, type, isChecked)
     }
 }
 
 @Composable
-fun TaskDetails(title: String, description: String, deadline: Long, type: String){
+fun TaskDetails(
+    title: String,
+    description: String,
+    deadline: Long,
+    type: String,
+    isChecked: Boolean
+){
     val formattedDeadline = remember {
         SimpleDateFormat("LLLL dd, yyyy", Locale.getDefault())
     }.format(Date(deadline))
@@ -90,23 +105,32 @@ fun TaskDetails(title: String, description: String, deadline: Long, type: String
             Text(
                 text = title,
                 fontSize = 24.sp,
+                fontFamily = nunitoFontFamily,
                 fontWeight = FontWeight.Bold
             )
             Icon(
                 imageVector = Icons.Filled.Edit,
-                contentDescription = "Edit task", //onclick so we can edit it
-                tint = Color.Blue
+                contentDescription = "Edit task",
+                tint = Color.Blue,
+                modifier = Modifier
+                    .clickable {
+                        //We go to the 2nd screen with the values that we have in this page and are able to edit them.
+                    }
             )
         }
+
+        val stateColor = if (isChecked) Color(0xFF78bc7a) else Color.Red
+        val stateText = if (isChecked) "Completed" else "Incomplete"
 
         Text(
             modifier = Modifier
                 .padding(end = 3.dp, top = 4.dp)
                 .align(Alignment.End),
-            text = "Completed", //Task status - description
+            text = stateText,
             fontSize = 14.sp,
+            fontFamily = nunitoFontFamily,
             fontWeight = FontWeight.SemiBold,
-            color = Color(0xFF78bc7a) //Task status - color
+            color = stateColor
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -114,6 +138,8 @@ fun TaskDetails(title: String, description: String, deadline: Long, type: String
         Text(
             text = description,
             fontSize = 16.sp,
+            fontFamily = nunitoFontFamily,
+            fontWeight = FontWeight.Normal,
             lineHeight = 24.sp,
             modifier = Modifier.width(328.dp)
         )
@@ -131,7 +157,7 @@ fun TaskDetails(title: String, description: String, deadline: Long, type: String
             ){
                 Image(
                     painter = painterResource(id = R.drawable.clock),
-                    contentDescription = "Task's Deadline",
+                    contentDescription = stringResource(R.string.task_deadline),
                     modifier = Modifier
                         .size(24.dp)
                         .padding(end = 8.dp)
@@ -139,26 +165,37 @@ fun TaskDetails(title: String, description: String, deadline: Long, type: String
                 Text(
                     text = "Before $formattedDeadline",
                     fontSize = 14.sp,
+                    fontFamily = nunitoFontFamily,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.Gray
                 )
             }
 
+            val categoryColor = when (type){
+                stringResource(R.string.priority_1) -> Color(0xFFff6c5c)
+                stringResource(R.string.priority_2) -> Color(0xFFffd434)
+                stringResource(R.string.priority_3) -> Color(0Xff687cec)
+                stringResource(R.string.priority_4) -> Color(0xFF58cc54)
+                else  -> Color.Gray
+            }
+
             Surface(
-                color = Color.Red,
+                color = categoryColor,
                 modifier = Modifier
                     .width(68.dp)
                     .height(24.dp),
                 shape = CutCornerShape(topStart = 12.dp, bottomStart = 12.dp),
 
                 ) {
-                Text(   //Color according to the order of importance
+                Text(
                     textAlign = TextAlign.Center,
                     text = type,
                     fontSize = 12.sp,
                     color = Color.White,
+                    fontFamily = nunitoFontFamily,
                     fontWeight = FontWeight.Normal,
-                    modifier = Modifier.padding(start = 8.dp, top = 4.dp)
+                    modifier = Modifier
+                        .padding(start = 8.dp, top = 4.dp)
                 )
             }
         }

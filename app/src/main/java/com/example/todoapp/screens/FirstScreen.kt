@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.todoapp.R
 import com.example.todoapp.navigation.AppScreens
+import com.example.todoapp.ui.theme.nunitoFontFamily
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -53,6 +54,12 @@ fun FirstScreen(navController: NavController){
 
 @Composable
 fun MainScreen (navController: NavController) {
+    val sortedTasks = remember {
+        listOfTasks.sortedWith(
+            compareBy { getPriority(it.type) }
+        )
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -66,7 +73,8 @@ fun MainScreen (navController: NavController) {
                 text = stringResource(R.string.title),
                 fontSize = 22.sp,
                 modifier = Modifier.align(Alignment.Center),
-                fontWeight = FontWeight.Bold
+                fontFamily = nunitoFontFamily,
+                fontWeight = FontWeight.Normal
             )
         }
 
@@ -85,6 +93,8 @@ fun MainScreen (navController: NavController) {
                 Text(
                     text = stringResource(R.string.no_tasks),
                     fontSize = 17.sp,
+                    fontFamily = nunitoFontFamily,
+                    fontWeight = FontWeight.Normal,
                     modifier = Modifier
                         .align(Alignment.Center)
                         .padding(top = 300.dp)
@@ -120,6 +130,7 @@ fun MainScreen (navController: NavController) {
                     .padding(start = 16.dp, bottom = 12.dp, top = 16.dp, end = 16.dp),
                 text = stringResource(R.string.tasks),
                 fontSize = 24.sp,
+                fontFamily = nunitoFontFamily,
                 fontWeight = FontWeight.Bold
             )
 
@@ -128,24 +139,33 @@ fun MainScreen (navController: NavController) {
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
             ) {
-                items(listOfTasks) { task ->
+                items(sortedTasks) { task ->
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(shape = RoundedCornerShape(12.dp))
-                            .background(Color.Blue)
+                            .background(
+                                when (task.type) {
+                                    "Urgent" -> Color(0xFFff6c5c)
+                                    "Important"-> Color(0xFFffd434)
+                                    "Assigned" -> Color(0Xff687cec)
+                                    "Plans" -> Color(0xFF58cc54)
+                                    else  -> Color.Gray
+                                })
                             .clickable {
-                                navController.navigate(route = AppScreens.ThirdScreen.route + "/${task.title}/${task.description}/${task.deadline}/${task.type}")
+                                navController.navigate(route = AppScreens.ThirdScreen.route +
+                                        "/${task.title}/${task.description}/${task.deadline}/${task.type}/${task.isChecked}")
                             }
                     ) {
-                        TaskItem(task)
+                        TaskItem(task) { isChecked ->
+                            task.isChecked = isChecked
+                        }
                     }
-
                     Spacer(modifier = Modifier.height(8.dp))
                 }
             }
 
-            //When the lazy column takes all the space of our screen the button appears *--*-*-*-*-*-*-*-*-*-*-*-*--
+            //When the lazy column takes all the space of our screen the button disappears *--*-*-*-*-*-*-*-*-*-*-*-*--
             Column(
                 modifier = Modifier
                     .fillMaxSize(),
@@ -172,8 +192,8 @@ fun MainScreen (navController: NavController) {
 }
 
 @Composable
-fun TaskItem(task: List) {
-    val checkedState = remember { mutableStateOf(false) }
+fun TaskItem(task: List, onCheckedChange: (Boolean) -> Unit) {
+    val checkedState = remember { mutableStateOf(task.isChecked) }
     Column (
         modifier = Modifier
             .padding(start = 16.dp, end = 16.dp)
@@ -190,6 +210,7 @@ fun TaskItem(task: List) {
                     text = task.title,
                     modifier = Modifier
                         .padding(top = 12.dp, bottom = 2.dp),
+                    fontFamily = nunitoFontFamily,
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,
                     color = Color.White
@@ -198,6 +219,7 @@ fun TaskItem(task: List) {
                     text = task.type,
                     modifier = Modifier
                         .padding(top = 2.dp, bottom = 12.dp),
+                    fontFamily = nunitoFontFamily,
                     fontWeight = FontWeight.Normal,
                     fontSize = 18.sp,
                     color = Color.White
@@ -207,6 +229,7 @@ fun TaskItem(task: List) {
                 checked = checkedState.value,
                 onCheckedChange = { isChecked ->
                     checkedState.value = isChecked
+                    onCheckedChange(isChecked)
                 },
                 colors = CheckboxDefaults.colors(
                     checkedColor = Color.White,
@@ -215,5 +238,15 @@ fun TaskItem(task: List) {
                 )
             )
         }
+    }
+}
+
+fun getPriority(type: String): Int {
+    return when (type) {
+        "Urgent" -> 0
+        "Important" -> 1
+        "Assigned" -> 2
+        "Plans" -> 3
+        else -> 4
     }
 }

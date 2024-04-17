@@ -1,3 +1,4 @@
+//2nd screen
 package com.example.todoapp.screens
 
 import android.annotation.SuppressLint
@@ -44,11 +45,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.todoapp.R
+import com.example.todoapp.ui.theme.nunitoFontFamily
 import java.text.DateFormatSymbols
 import java.util.Calendar
 import java.util.Date
@@ -74,7 +77,9 @@ fun SecondScreen(navController: NavController){
                 )
                 Text(
                     text = stringResource(R.string.add_task),
-                    fontSize = 22.sp
+                    fontSize = 22.sp,
+                    fontFamily = nunitoFontFamily,
+                    fontWeight = FontWeight.Normal
                 )
             }
         }
@@ -130,7 +135,7 @@ fun AddTask(navController: NavController, onSaveTask: (List) -> Unit){
                     textAlign = TextAlign.End,
                 )
             },
-            label = { Text("Description") }
+            label = { Text(stringResource(R.string.description)) }
         )
 
         Spacer(modifier = Modifier.height(11.dp))
@@ -157,16 +162,14 @@ fun AddTask(navController: NavController, onSaveTask: (List) -> Unit){
 
         Spacer(modifier = Modifier.height(28.dp))
 
-        //Categories  *-*-*-**-*-*-**-*-*-**-*-*-**-*-*-**-*-*-*
-
         val list = listOf(
-            "Urgent", //Red
-            "Important", //Yellow
-            "Assigned", //Blue
-            "Plans" // Green
+            stringResource(R.string.priority_1), //Red
+            stringResource(R.string.priority_2), //Yellow
+            stringResource(R.string.priority_3), //Blue
+            stringResource(R.string.priority_4) // Green
         )
         var isExpanded by remember{ mutableStateOf(false) }
-        var selectedText by remember { mutableStateOf(list[0]) }
+        var selectedText by remember { mutableStateOf("Priority") }
 
         Column (
             modifier = Modifier
@@ -197,7 +200,10 @@ fun AddTask(navController: NavController, onSaveTask: (List) -> Unit){
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded) }
                 )
 
-                ExposedDropdownMenu(expanded = isExpanded, onDismissRequest = { isExpanded = false }) {
+                ExposedDropdownMenu(
+                    expanded = isExpanded,
+                    onDismissRequest = { isExpanded = false }
+                ) {
                     list.forEachIndexed { index, text ->
                         DropdownMenuItem(
                             text = { Text(text = text) },
@@ -220,7 +226,12 @@ fun AddTask(navController: NavController, onSaveTask: (List) -> Unit){
                 .padding(start = 17.dp, end = 17.dp),
             colors = ButtonDefaults.buttonColors(Color.Black),
             onClick = {
-                val task = List(title = title, description = description, deadline = endDate.toString(), type = selectedText)
+                val task = List(
+                    title = title,
+                    description = description,
+                    deadline = endDate.toString(),
+                    type = selectedText
+                )
                 onSaveTask(task)
                 navController.popBackStack()
             }
