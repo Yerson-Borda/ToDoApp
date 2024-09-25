@@ -1,4 +1,3 @@
-//App navigation
 package com.example.todoapp.navigation
 
 import androidx.compose.runtime.Composable
@@ -28,7 +27,7 @@ fun AppNavigation(){
                 navArgument("description") { type = NavType.StringType },
                 navArgument("deadline") { type = NavType.StringType },
                 navArgument("type") { type = NavType.StringType },
-                navArgument("isChecked") { type = NavType.BoolType } // New argument for checked state
+                navArgument("isChecked") { type = NavType.BoolType }
             )
         ) { backStackEntry ->
             ThirdScreen(
@@ -37,7 +36,7 @@ fun AppNavigation(){
                 description = backStackEntry.arguments?.getString("description") ?: "",
                 deadline = backStackEntry.arguments?.getString("deadline") ?: "",
                 type = backStackEntry.arguments?.getString("type") ?: "",
-                isChecked = backStackEntry.arguments?.getBoolean("isChecked") ?: false // Receive checked state
+                isChecked = backStackEntry.arguments?.getBoolean("isChecked") ?: false
             )
         }
     }
